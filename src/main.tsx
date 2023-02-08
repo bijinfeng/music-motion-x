@@ -9,11 +9,6 @@ const store = getReduxStore({});
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App
-      store={store}
-      isServer={false}
-      preloadedState={{}}
-      helmetContext={{}}
-    />
+    <App store={store} preloadedState={{}} helmetContext={{}} />
   </React.StrictMode>
 );

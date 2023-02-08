@@ -1,34 +1,24 @@
-/* eslint-disable react/require-default-props */
-/* eslint-disable react/forbid-prop-types */
-
-import { lazy, Suspense } from "react";
-import type { RouteMatch } from "react-router";
-import type { DehydratedState } from "react-query";
-import type { StaticRouterProps } from "react-router-dom/server";
-import type { ProviderProps } from "react-redux";
-
-const PlayBar = lazy(() => import("@/components/PlayBar"));
-const AppUpdateAvailable = lazy(
-  () => import("@/components/AppUpdateAvailable")
-);
-const ErrorFound = lazy(() => import("@/components/ErrorPage"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-
-const {
+import React, { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { HelmetProvider } from "react-helmet-async";
+import { Routes, Route } from "react-router";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import {
   QueryClient,
   useQueryErrorResetBoundary,
   Hydrate,
   QueryClientProvider,
-} = await import("react-query");
+} from "react-query";
 
-const { ErrorBoundary } = await import("react-error-boundary");
-const { HelmetProvider } = await import("react-helmet-async");
-const { StaticRouter } = await import("react-router-dom/server");
-const { Routes, Route } = await import("react-router");
-const { BrowserRouter } = await import("react-router-dom");
-const { Provider } = await import("react-redux");
+import type { RouteMatch } from "react-router";
+import type { DehydratedState } from "react-query";
+import type { ProviderProps } from "react-redux";
 
-const routes = await import("./routes").then((res) => res.default);
+import routes from "./routes";
+import PlayBar from "@/components/PlayBar";
+import ErrorFound from "@/components/ErrorPage";
+import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,65 +28,17 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = ({
-  store,
-  isServer,
-  location,
-  preloadedState,
-  dehydratedState,
-  helmetContext,
-}: {
+interface AppProps {
   store: ProviderProps["store"];
-  isServer: boolean;
   matchedRoutes?: RouteMatch[];
-  location?: StaticRouterProps["location"];
   dehydratedState?: DehydratedState;
   preloadedState: { [x: string]: any };
   helmetContext: any;
-}) => {
+}
+
+const App: React.FC<AppProps> = (props) => {
+  const { store, preloadedState, dehydratedState, helmetContext } = props;
   const { reset } = useQueryErrorResetBoundary();
-  const content = (
-    <HelmetProvider context={helmetContext}>
-      <Suspense>
-        <PlayBar />
-      </Suspense>
-
-      <Routes>
-        {routes.map((r) => (
-          <Route element={r.element} path={r.path} key={r.path}>
-            {r.children &&
-              r.children.length > 0 &&
-              r.children.map((child) => (
-                <Route
-                  element={child.element}
-                  path={child.path}
-                  key={child.path}
-                />
-              ))}
-          </Route>
-        ))}
-        <Route
-          path="*"
-          element={
-            <Suspense>
-              <NotFound />
-            </Suspense>
-          }
-        />
-      </Routes>
-    </HelmetProvider>
-  );
-
-  const IsomophicRouter = isServer ? (
-    <StaticRouter location={location || ""}>{content}</StaticRouter>
-  ) : (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <>
-        <AppUpdateAvailable />
-        {content}
-      </>
-    </BrowserRouter>
-  );
 
   return (
     <ErrorBoundary
@@ -109,8 +51,39 @@ const App = ({
     >
       <Provider store={store} serverState={preloadedState || {}}>
         <QueryClientProvider client={queryClient}>
-          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-          <Hydrate state={dehydratedState}>{IsomophicRouter}</Hydrate>
+          <Hydrate state={dehydratedState}>
+            <BrowserRouter basename={import.meta.env.BASE_URL}>
+              <HelmetProvider context={helmetContext}>
+                <Suspense>
+                  <PlayBar />
+                </Suspense>
+
+                <Routes>
+                  {routes.map((r) => (
+                    <Route element={r.element} path={r.path} key={r.path}>
+                      {r.children &&
+                        r.children.length > 0 &&
+                        r.children.map((child) => (
+                          <Route
+                            element={child.element}
+                            path={child.path}
+                            key={child.path}
+                          />
+                        ))}
+                    </Route>
+                  ))}
+                  <Route
+                    path="*"
+                    element={
+                      <Suspense>
+                        <NotFound />
+                      </Suspense>
+                    }
+                  />
+                </Routes>
+              </HelmetProvider>
+            </BrowserRouter>
+          </Hydrate>
         </QueryClientProvider>
       </Provider>
     </ErrorBoundary>
