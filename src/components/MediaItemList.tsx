@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 // import cx from "classnames"
-import React, { FC, CSSProperties, memo } from "react";
+import { FC, CSSProperties, memo } from "react";
 import cx from "classnames";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";

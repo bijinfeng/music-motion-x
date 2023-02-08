@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback, memo, CSSProperties, FC } from "react";
+import { useCallback, memo, CSSProperties, FC } from "react";
 import { Link } from "react-router-dom";
 import pageBackIcon from "@/assets/pageBack.png";
 import blackBackIcon from "@/assets/blackBack.png";

@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable react/require-default-props */
-import React, {
+import {
   memo,
   useState,
   useEffect,

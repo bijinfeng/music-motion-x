@@ -1,6 +1,7 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable react/prop-types */
 import { PureComponent, ReactNode } from "react";
+// @ts-ignore
 import { getFirstConsistentlyInteractive } from "tti-polyfill/src";
 
 interface LazyShowProps {

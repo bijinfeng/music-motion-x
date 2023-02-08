@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { FC, memo, useCallback } from "react";
+import { FC, memo, useCallback } from "react";
 import css from "./PlayBar.module.css";
 const PlaySongsBar: FC<{
   songsCount: number;
