@@ -1,8 +1,7 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable react/prop-types */
 import { PureComponent, ReactNode } from "react";
-
-import ttiPolyfill from "tti-polyfill";
+import { getFirstConsistentlyInteractive } from "tti-polyfill/src";
 
 interface LazyShowProps {
   mode: "scroll" | "tti";
@@ -22,9 +21,9 @@ class LazyShow extends PureComponent<LazyShowProps> {
   };
 
   componentDidMount() {
-    if (this.props.mode === "tti")
-      ttiPolyfill.getFirstConsistentlyInteractive().then(this.showComp);
-    else {
+    if (this.props.mode === "tti") {
+      getFirstConsistentlyInteractive().then(this.showComp);
+    } else {
       const root =
         typeof this.props.root === "function" ? this.props.root() : window;
       root.addEventListener("scroll", this.showComp);

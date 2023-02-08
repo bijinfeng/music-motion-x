@@ -1,11 +1,12 @@
 /* eslint-disable react/require-default-props */
 /* eslint-disable react/forbid-prop-types */
 
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 
 import type { RouteMatch } from "react-router";
 import type { DehydratedState } from "react-query";
 import type { StaticRouterProps } from "react-router-dom/server";
+import type { ProviderProps } from "react-redux";
 
 const PlayBar = lazy(() => import("@/components/PlayBar"));
 const AppUpdateAvailable = lazy(
@@ -46,7 +47,7 @@ const App = ({
   dehydratedState,
   helmetContext,
 }: {
-  store: any;
+  store: ProviderProps["store"];
   isServer: boolean;
   matchedRoutes?: RouteMatch[];
   location?: StaticRouterProps["location"];

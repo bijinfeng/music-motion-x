@@ -1041,6 +1041,11 @@
   resolved "http://bnpm.byted.org/@types/semver/-/semver-7.3.13.tgz#da4bfd73f49bd541d28920ab0e2bf0ee80f71c91"
   integrity sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==
 
+"@types/tti-polyfill@^0.2.1":
+  version "0.2.1"
+  resolved "http://bnpm.byted.org/@types/tti-polyfill/-/tti-polyfill-0.2.1.tgz#5eba5f7bc27c812a67534ade816197e5090e5af1"
+  integrity sha512-C7psWv1GMxfm/eZyU4upmonP3036bwV2VNmHakOTIKULme4+da4rGCZaNWX/o8CWa3raf9Ogrhk8s0ODfcqzBw==
+
 "@types/use-sync-external-store@^0.0.3":
   version "0.0.3"
   resolved "http://bnpm.byted.org/@types/use-sync-external-store/-/use-sync-external-store-0.0.3.tgz#b6725d5f4af24ace33b36fafd295136e75509f43"
