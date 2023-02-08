@@ -3,5 +3,21 @@
   "rules": {
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off"
+  },
+  "settings": {
+    "import/parsers": {
+      // 使用 TypeScript parser
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx"
+      ]
+    },
+    "import/resolver": {
+      // 默认使用根目录 tsconfig.json
+      "typescript": {
+        // 从 <roo/>@types 读取类型定义
+        "alwaysTryTypes": true
+      }
+    }
   }
 }

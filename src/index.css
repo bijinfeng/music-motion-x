@@ -1,69 +1,47 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  background-color: #212121;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#root {
+  max-height: 100vh;
+  max-width: 820px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow-y: scroll;
+  padding-bottom: 63px;
+  background-color: #212121;
+  -webkit-overflow-scrolling: touch;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.single_line {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: break-all;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.two_lines {
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  white-space: initial;
+}
+
+.multiple_line {
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  /** 对象作为伸缩盒子模型显示，必须结合的属性 **/
+  -webkit-box-orient: vertical;
+
+  /** 设置或检索伸缩盒对象的子元素的排列方式，必须结合的属性 **/
+  -webkit-line-clamp: 3;
+  /** 显示的行数 **/
+  overflow: hidden;
+  /** 隐藏超出的内容 **/
 }

@@ -1,21 +1,29 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "allowJs": true,
+    "alwaysStrict": true,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "lib": ["dom", "esnext", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "incremental": true,
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "exclude": ["node_modules", "__tests__"],
+  "include": ["**/*.ts", "**/*.tsx"]
 }
