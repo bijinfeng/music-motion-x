@@ -2,7 +2,6 @@
 /* eslint-disable react/forbid-prop-types */
 
 import { lazy, Suspense } from "react";
-
 import type { RouteMatch } from "react-router";
 import type { DehydratedState } from "react-query";
 import type { StaticRouterProps } from "react-router-dom/server";
@@ -91,7 +90,7 @@ const App = ({
   const IsomophicRouter = isServer ? (
     <StaticRouter location={location || ""}>{content}</StaticRouter>
   ) : (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <>
         <AppUpdateAvailable />
         {content}
