@@ -1,90 +1,92 @@
-import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import thunk from "redux-thunk";
+import { create } from "zustand";
+import { getSongDetail } from "@/request";
+
 import type Song from "@/interfaces/song";
 
-export const rootSlice = createSlice({
-  name: "root",
-  initialState: {
-    currentPlaySong: {} as Song,
-    showPlayBar: true,
-    currentPlaySongList: [] as Song[],
-    isShowPlayModal: false,
+interface RootState {
+  autoplay: boolean;
+  currentPlaySong?: Song;
+  showPlayBar: boolean;
+  currentPlaySongList: Song[];
+  isShowPlayModal: boolean;
+  setShowPlayModal: (bol: boolean) => void;
+  playSong: (song: Song, autoplay?: boolean) => void;
+  playSongs: (songs: Song[], autoplay?: boolean) => void;
+  playPrev: () => void;
+  playNext: () => void;
+  playAtNext: (song: Song) => void;
+  setShowPlayBar: (show: boolean) => void;
+  playById: (id: string, autoplay?: boolean) => void;
+}
+
+export const useRootStore = create<RootState>((set, get) => ({
+  autoplay: true,
+  showPlayBar: true,
+  currentPlaySongList: [],
+  isShowPlayModal: false,
+  setShowPlayModal: (bol) => {
+    set({ isShowPlayModal: bol });
   },
-  reducers: {
-    setShowPlayModal: (state, action: PayloadAction<boolean>) => {
-      state.isShowPlayModal = action.payload;
-    },
-    playSong: (state, action: PayloadAction<Song>) => {
-      state.currentPlaySong = action.payload;
-      if (state.currentPlaySongList.length === 0) {
-        state.currentPlaySongList = [action.payload] as Song[];
-      } else {
-        const curIndex = state.currentPlaySongList.findIndex(
-          (song) => song.id === state.currentPlaySong.id
-        );
-        if (curIndex === -1) {
-          state.currentPlaySongList.unshift(state.currentPlaySong);
-        }
-      }
-    },
-    playSongs: (state, action: PayloadAction<Song[]>) => {
-      state.currentPlaySongList = action.payload;
-      state.currentPlaySong = state.currentPlaySongList[0];
-    },
-    playPrev: (state) => {
-      const curIndex = state.currentPlaySongList.findIndex(
-        (song) => song.id === state.currentPlaySong.id
+  playSong: (song, autoplay = true) => {
+    set((state) => {
+      const currentPlaySong = song;
+      const currentPlaySongList = [...state.currentPlaySongList];
+      const curIndex = currentPlaySongList.findIndex(
+        (song) => song.id === currentPlaySong.id
       );
-
-      if (curIndex > 0) {
-        state.currentPlaySong = state.currentPlaySongList[curIndex - 1];
+      if (curIndex === -1) {
+        currentPlaySongList.unshift(currentPlaySong);
       }
-    },
-    playNext: (state) => {
-      const curIndex = state.currentPlaySongList.findIndex(
-        (song) => song.id === state.currentPlaySong.id
-      );
 
-      if (curIndex < state.currentPlaySongList.length - 1) {
-        state.currentPlaySong = state.currentPlaySongList[curIndex + 1];
-      }
-    },
-    playAtNext: (state, action: PayloadAction<Song>) => {
-      if (action.payload.id === state.currentPlaySong.id) return;
-      if (!state.currentPlaySong.id) {
-        state.currentPlaySong = action.payload;
-        if (state.currentPlaySongList.length === 0) {
-          state.currentPlaySongList = [action.payload] as Song[];
-        }
-      } else {
-        const curIndex = state.currentPlaySongList.findIndex(
-          (song) => song.id === state.currentPlaySong.id
-        );
-
-        state.currentPlaySongList.splice(curIndex + 1, 0, action.payload);
-      }
-    },
-    setShowPlayBar: (state, action: PayloadAction<boolean>) => {
-      state.showPlayBar = action.payload;
-    },
+      return { currentPlaySong, currentPlaySongList, autoplay };
+    });
   },
-});
-
-const rootReducer = {
-  root: rootSlice.reducer,
-};
-
-const getReduxStore = (defaultState: { [x: string]: any }) => {
-  return configureStore({
-    reducer: rootReducer,
-    middleware: [thunk],
-    devTools: false,
-    preloadedState: defaultState,
-  });
-};
-
-const initialState = getReduxStore({}).getState;
-
-export type RootState = ReturnType<typeof initialState>;
-
-export default getReduxStore;
+  playSongs: (songs, autoplay) => {
+    set({ currentPlaySongList: songs, currentPlaySong: songs[0], autoplay });
+  },
+  playPrev: () => {
+    const { currentPlaySongList, currentPlaySong } = get();
+    const curIndex = currentPlaySongList.findIndex(
+      (song) => song.id === currentPlaySong?.id
+    );
+    if (curIndex > 0) {
+      set({ currentPlaySong: currentPlaySongList[curIndex - 1] });
+    }
+  },
+  playNext: () => {
+    const { currentPlaySongList, currentPlaySong } = get();
+    const curIndex = currentPlaySongList.findIndex(
+      (song) => song.id === currentPlaySong?.id
+    );
+    if (curIndex > 0) {
+      set({ currentPlaySong: currentPlaySongList[curIndex + 1] });
+    }
+  },
+  playAtNext: (song) => {
+    const { currentPlaySong, currentPlaySongList } = get();
+    if (song.id === currentPlaySong?.id) return;
+    if (!currentPlaySong?.id) {
+      set({ currentPlaySong });
+      if (currentPlaySongList.length === 0) {
+        set({ currentPlaySongList: [song] });
+      }
+    } else {
+      const curIndex = currentPlaySongList.findIndex(
+        (song) => song.id === currentPlaySong.id
+      );
+      set({
+        currentPlaySongList: [
+          ...currentPlaySongList.splice(curIndex + 1, 0, song),
+        ],
+      });
+    }
+  },
+  setShowPlayBar: (show) => {
+    set({ showPlayBar: show });
+  },
+  playById: async (id, autoplay) => {
+    const { playSong } = get();
+    const song = await getSongDetail(id);
+    playSong(song, autoplay);
+  },
+}));

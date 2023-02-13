@@ -1,9 +1,9 @@
 import React, { Suspense } from "react";
+import { once } from "lodash-es";
 import { ErrorBoundary } from "react-error-boundary";
 import { HelmetProvider } from "react-helmet-async";
 import { Routes, Route } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { Provider } from "react-redux";
 import {
   QueryClient,
   useQueryErrorResetBoundary,
@@ -11,14 +11,11 @@ import {
   QueryClientProvider,
 } from "react-query";
 
-import type { RouteMatch } from "react-router";
-import type { DehydratedState } from "react-query";
-import type { ProviderProps } from "react-redux";
-
 import routes from "./routes";
 import PlayBar from "@/components/PlayBar";
 import ErrorFound from "@/components/ErrorPage";
 import NotFound from "@/pages/NotFound";
+import { useRootStore } from "@/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,19 +25,18 @@ const queryClient = new QueryClient({
   },
 });
 
-interface AppProps {
-  store: ProviderProps["store"];
-  matchedRoutes?: RouteMatch[];
-  dehydratedState?: DehydratedState;
-  preloadedState: { [x: string]: any };
-  helmetContext: any;
-}
+const playById = once((id: string) => {
+  const { playById, setShowPlayModal } = useRootStore.getState();
+  setShowPlayModal(true);
+  playById(id, false);
+});
 
-const App: React.FC<AppProps> = (props) => {
-  const { store, preloadedState, dehydratedState, helmetContext } = props;
+const App: React.FC = () => {
   const { reset } = useQueryErrorResetBoundary();
   const [searchParams] = useSearchParams();
   const songId = searchParams.get("id") || "";
+
+  songId && playById(songId);
 
   return (
     <ErrorBoundary
@@ -51,41 +47,29 @@ const App: React.FC<AppProps> = (props) => {
         </Suspense>
       )}
     >
-      <Provider store={store} serverState={preloadedState || {}}>
-        <QueryClientProvider client={queryClient}>
-          <Hydrate state={dehydratedState}>
-            <HelmetProvider context={helmetContext}>
-              <Suspense>
-                <PlayBar id={songId} />
-              </Suspense>
-
-              <Routes>
-                {routes.map((r) => (
-                  <Route element={r.element} path={r.path} key={r.path}>
-                    {r.children &&
-                      r.children.length > 0 &&
-                      r.children.map((child) => (
-                        <Route
-                          element={child.element}
-                          path={child.path}
-                          key={child.path}
-                        />
-                      ))}
-                  </Route>
-                ))}
-                <Route
-                  path="*"
-                  element={
-                    <Suspense>
-                      <NotFound />
-                    </Suspense>
-                  }
-                />
-              </Routes>
-            </HelmetProvider>
-          </Hydrate>
-        </QueryClientProvider>
-      </Provider>
+      <QueryClientProvider client={queryClient}>
+        <Hydrate>
+          <HelmetProvider>
+            <PlayBar />
+            <Routes>
+              {routes.map((r) => (
+                <Route element={r.element} path={r.path} key={r.path}>
+                  {r.children &&
+                    r.children.length > 0 &&
+                    r.children.map((child) => (
+                      <Route
+                        element={child.element}
+                        path={child.path}
+                        key={child.path}
+                      />
+                    ))}
+                </Route>
+              ))}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </HelmetProvider>
+        </Hydrate>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 };

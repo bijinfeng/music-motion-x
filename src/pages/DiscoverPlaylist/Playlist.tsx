@@ -1,8 +1,5 @@
-// import { useDispatch } from "react-redux"
-// import { rootSlice } from "@/store"
 import cx from "classnames";
 import { useQuery } from "react-query";
-// import useIsomorphicEffect from "@/hooks/useIsomorphicEffect"
 import { useState } from "react";
 import fetcher from "@/fetcher";
 import Label from "@/components/Label";
@@ -12,7 +9,6 @@ import PageBack from "@/components/AppBack";
 
 const Playlist = () => {
   const [catClicked, setCatClicked] = useState("");
-  // const dispatch = useDispatch()
 
   const { data: cats } = useQuery("/api/playlist/catlist", () =>
     fetcher
@@ -47,13 +43,6 @@ const Playlist = () => {
         : null,
     { suspense: false }
   );
-
-  // useIsomorphicEffect(() => {
-  //   dispatch(rootSlice.actions.setShowPageBack(true))
-  //   return () => {
-  //     dispatch(rootSlice.actions.setShowPageBack(false))
-  //   }
-  // }, [])
 
   return (
     <div className=" px-4">

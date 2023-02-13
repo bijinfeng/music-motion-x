@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import cx from "classnames";
 import { FC, useCallback, useRef } from "react";
-import { useDispatch } from "react-redux";
 import PageBack from "@/components/AppBack";
 import fetcher from "@/fetcher";
 import type { PlaylistDetails } from "@/interfaces/playlist";
@@ -16,7 +15,7 @@ import useEleScrollValue from "@/hooks/useEleScrollValue";
 import clamp from "@/utils/clamp";
 import InnerModal from "@/components/InnerModal";
 import useEffectShowModal from "@/hooks/useEffectShowModal";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 
 const PlaylistBrief: FC<Omit<PlaylistDetails, "coverImgUrl" | "trackIds">> = ({
   name,
@@ -181,7 +180,7 @@ const PlaylistDetailLazy = () => {
     callScrollContainerRef,
     scrollValueFormatter
   );
-  const dispatch = useDispatch();
+  const playSongs = useRootStore((state) => state.playSongs);
   useRootScrollTop();
 
   return (
@@ -220,7 +219,7 @@ const PlaylistDetailLazy = () => {
             songsCount={playlistSongs?.length ?? 0}
             withoutBar={false}
             onPlayIconClick={() => {
-              dispatch(rootSlice.actions.playSongs(playlistSongs ?? []));
+              playSongs(playlistSongs ?? []);
             }}
           />
           <div className=" mt-6 pl-1">

@@ -9,15 +9,13 @@ import React, {
   useState,
 } from "react";
 import { useQuery } from "react-query";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 import InnerModal, { ModalMask } from "../InnerModal";
 import { SongList } from "../MediaItemList";
 import css from "./PlayBar.module.css";
 import PlayFixedBar from "./PlayFixedBar";
 import fetcher from "@/fetcher";
 import useIsomorphicEffect from "@/hooks/useIsomorphicEffect";
-import { RootState, rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 import Dialog from "@/components/Dialog";
 import { getSongDetail } from "@/request";
 
@@ -35,42 +33,37 @@ export type PlayState =
   | "playing"
   | "";
 
-const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
+const PlayBar: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playState, setPlayState] = useState<PlayState>("");
   const [isShowDialog, setShowDialog] = useState(false);
   const barRef = useRef<HTMLDivElement | null>(null);
 
   const [audioCurTime, setAudioCurTime] = useState(0);
-  const dispatch = useDispatch();
-  const location = useLocation();
-
-  const isShowPlayModal = useSelector<RootState>(
-    (state) => !!id || state.root.isShowPlayModal
-  );
-  const currentPlayId = useSelector<RootState, number | string>(
-    (state) => id || state.root.currentPlaySong.id
-  );
-  const currentPlayList = useSelector<RootState>(
-    (state) => state.root.currentPlaySongList
-  );
-  const showPlayBar = useSelector<RootState>((state) => state.root.showPlayBar);
+  const {
+    autoplay,
+    isShowPlayModal,
+    currentPlaySong: { id: currentPlayId } = {},
+    currentPlaySongList: currentPlayList,
+    showPlayBar,
+    playPrev,
+    playNext,
+    playSong,
+  } = useRootStore();
 
   const { data: src, isLoading: audioLoading } = useQuery(
-    currentPlayId ? `/api/song/url?id=${currentPlayId}` : "",
+    ["song", "url", currentPlayId],
     () =>
-      currentPlayId
-        ? fetcher
-            .get(`/api/song/url?id=${currentPlayId}`)
-            .then((res) => res.data.data[0])
-        : null,
-    { suspense: false, refetchOnWindowFocus: false }
+      fetcher
+        .get(`/api/song/url?id=${currentPlayId}`)
+        .then((res) => res.data.data[0]),
+    { suspense: false, refetchOnWindowFocus: false, enabled: !!currentPlayId }
   );
 
   const { data: songDetail } = useQuery(
-    currentPlayId ? `/api/song/detail?ids=${currentPlayId}` : "",
-    () => (currentPlayId ? getSongDetail(currentPlayId) : null),
-    { suspense: false, refetchOnWindowFocus: false }
+    ["song", "detail", currentPlayId],
+    () => getSongDetail(currentPlayId!),
+    { suspense: false, refetchOnWindowFocus: false, enabled: !!currentPlayId }
   );
 
   const onAudioTimeUpdate = useCallback(() => {
@@ -92,22 +85,22 @@ const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
   }, []);
 
   const handlePlayIconClick = useCallback(() => {
-    if (playState === "paused" || playState === "stopped") {
-      audioRef.current!.play();
-    } else if (playState === "playing" || playState === "loaded") {
+    if (playState === "playing") {
       audioRef.current!.pause();
+    } else {
+      audioRef.current!.play();
     }
   }, [playState]);
 
   const onNextOrPrePlay = useCallback(
     (_b: boolean, mode: "prev" | "next") => {
       if (mode === "prev") {
-        dispatch(rootSlice.actions.playPrev());
+        playPrev();
       } else if (mode === "next") {
-        dispatch(rootSlice.actions.playNext());
+        playNext();
       }
     },
-    [dispatch]
+    [playNext, playPrev]
   );
 
   const onAudioEnd = useCallback(() => {
@@ -119,7 +112,6 @@ const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
     useEffectShowModal();
 
   useIsomorphicEffect(() => {
-    console.log("barRef.current", barRef.current);
     if (barRef.current && isShowPlayModal) {
       barRef.current.style.height = window.innerHeight + "px";
     } else if (barRef.current && !isShowPlayModal) {
@@ -136,17 +128,15 @@ const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
     if (audioRef.current && src?.url) {
       audioRef.current.src = src.url?.replace?.(/https?/, "https");
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        setShowDialog(true);
-      });
+      if (autoplay) {
+        audioRef.current.play().catch(() => {
+          setShowDialog(true);
+        });
+      }
     } else if (src && !src?.url && currentPlayId) {
       setShowDialog(true);
     }
   }, [src]);
-
-  useIsomorphicEffect(() => {
-    dispatch(rootSlice.actions.setShowPlayModal(false));
-  }, [location.pathname]);
 
   useEffect(() => {
     if ("mediaSession" in navigator && songDetail) {
@@ -174,7 +164,7 @@ const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
           title="播放出错，请重试"
           onCancelClick={() => setShowDialog(false)}
           onConfirmClick={() => {
-            dispatch(rootSlice.actions.playSong({} as Song));
+            playSong({} as Song);
             setShowDialog(false);
           }}
         />
@@ -210,6 +200,7 @@ const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
         src={src?.url ?? ""}
         ref={audioRef}
         preload="metadata"
+        autoPlay={autoplay}
         onLoadedData={onAudioLoadedData}
         onTimeUpdate={onAudioTimeUpdate}
         onPlay={onAudioPlay}

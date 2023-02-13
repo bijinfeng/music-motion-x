@@ -10,6 +10,7 @@ import {
   FC,
   CSSProperties,
 } from "react";
+import cls from "classnames";
 import imagsCss from "./Image.module.css";
 import pikaLazy from "@/utils/pikaLazy";
 
@@ -38,9 +39,9 @@ const MyImage: FC<{
     <img
       onMouseDown={(e) => e.preventDefault()}
       ref={imgRef}
-      className={` bg-dg select-none  ${imagsCss.my_image} ${className} ${
-        url ? "pika-lazy" : ""
-      }`}
+      className={cls("bg-dg select-none", imagsCss.my_image, className, {
+        "pika-lazy": !!url,
+      })}
       data-src={url ? url.replace(/https?/, "https") : ""}
       style={styledCss ?? {}}
       data-settled={isLoaded}

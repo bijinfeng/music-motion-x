@@ -2,20 +2,15 @@
 import { Link, useLocation, useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import { FC } from "react";
-import { useDispatch } from "react-redux";
 import fetcher from "@/fetcher";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 import { MVDetail, NormalMV } from "@/interfaces/mv";
 import { MyImage } from "@/components/Image";
 import { MediaItemTitle, MVList } from "@/components/MediaItemList";
 import useIsomorphicEffect from "@/hooks/useIsomorphicEffect";
 
 const Player: FC<{ url?: string; cover?: string }> = ({ url, cover }) => {
-  const dispatch = useDispatch();
-
-  const setPlayBar = (show: boolean) => {
-    dispatch(rootSlice.actions.setShowPlayBar(show));
-  };
+  const setShowPlayBar = useRootStore((state) => state.setShowPlayBar);
 
   return (
     <video
@@ -25,13 +20,13 @@ const Player: FC<{ url?: string; cover?: string }> = ({ url, cover }) => {
         width: "100%",
       }}
       onPlay={() => {
-        setPlayBar(false);
+        setShowPlayBar(false);
       }}
       onEnded={() => {
-        setPlayBar(true);
+        setShowPlayBar(true);
       }}
       onPause={() => {
-        setPlayBar(true);
+        setShowPlayBar(true);
       }}
       className=" sticky top-0 z-[501]"
       src={url ?? ""}
@@ -47,7 +42,7 @@ const Player: FC<{ url?: string; cover?: string }> = ({ url, cover }) => {
 
 const MV = () => {
   const { mvid } = useParams();
-  const dispatch = useDispatch();
+  const setShowPlayBar = useRootStore((state) => state.setShowPlayBar);
   const location = useLocation();
   const { data: details } = useQuery(`/api/mv/detail?mvid=${mvid}`, () =>
     fetcher
@@ -108,7 +103,7 @@ const MV = () => {
 
   useIsomorphicEffect(() => {
     return () => {
-      dispatch(rootSlice.actions.setShowPlayBar(true));
+      setShowPlayBar(true);
     };
   }, [location.pathname]);
 

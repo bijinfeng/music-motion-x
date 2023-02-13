@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import { useQuery } from "react-query";
 import cx from "classnames";
 import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import fetcher from "@/fetcher";
 import type { AlbumDetails } from "@/interfaces/album";
 import PageBack from "@/components/AppBack";
@@ -15,7 +14,7 @@ import InnerModal from "@/components/InnerModal";
 import useEffectShowModal from "@/hooks/useEffectShowModal";
 import { MyImage } from "@/components/Image";
 import { ArtistItem, SongList } from "@/components/MediaItemList";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 
 const AlbumBrief: FC<Partial<AlbumDetails>> = ({
   shareCount,
@@ -145,7 +144,7 @@ const AlbumDetail = () => {
     callScrollContainerRef,
     scrollValueFormatter
   );
-  const dispatch = useDispatch();
+  const playSongs = useRootStore((state) => state.playSongs);
 
   useRootScrollTop();
 
@@ -186,7 +185,7 @@ const AlbumDetail = () => {
             songsCount={albumDetails?.songs?.length ?? 0}
             withoutBar={false}
             onPlayIconClick={() => {
-              dispatch(rootSlice.actions.playSongs(albumDetails?.songs ?? []));
+              playSongs(albumDetails?.songs ?? []);
             }}
           />
           <div className=" mt-6 pl-1">

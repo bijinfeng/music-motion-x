@@ -3,7 +3,6 @@
 import { FC, CSSProperties, memo } from "react";
 import cx from "classnames";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { MyImage } from "./Image";
 import SongMore from "./SongMore";
 import VirtualizedList from "./VScrollList";
@@ -21,7 +20,7 @@ import type { NormalMV } from "@/interfaces/mv";
 import Label from "@/components/Label";
 
 import MyPlaceholder from "@/components/MyPlaceholder";
-import { rootSlice, RootState } from "@/store";
+import { useRootStore } from "@/store";
 
 export const MediaItemTitle: FC<{
   title: string;
@@ -126,26 +125,23 @@ const SongItem: FC<{
     albumId,
     id,
   }) => {
-    const dispatch = useDispatch();
-    const currentPlayId = useSelector<RootState>(
-      (state) => state.root.currentPlaySong.id
-    );
+    const playSong = useRootStore((state) => state.playSong);
+    const currentPlayId = useRootStore((state) => state.currentPlaySong?.id);
+
     return (
       <div
         className=" flex items-center mb-5"
         onClick={() => {
-          dispatch(
-            rootSlice.actions.playSong({
-              imgUrl,
-              title,
-              artistId,
-              albumId,
-              artistName,
-              albumName,
-              type: "song",
-              id,
-            } as Song)
-          );
+          playSong({
+            imgUrl,
+            title,
+            artistId,
+            albumId,
+            artistName,
+            albumName,
+            type: "song",
+            id,
+          } as Song);
         }}
       >
         {indexedPic ? (

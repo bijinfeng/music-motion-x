@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   CSSProperties,
@@ -15,7 +14,7 @@ import { MyImage } from "../Image";
 import type { PlayState } from "./PlayBar";
 import downIcon from "@/assets/down.png";
 import formatAudioTime from "@/utils/formatAudioTime";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 
 import playIcon from "@/assets/play.png";
 import pauseIcon from "@/assets/pause.png";
@@ -63,11 +62,7 @@ const PlayPageBottomPart: FC<{
         <div className=" w-full h-full flex justify-between items-center px-16 relative">
           <IconImg src={preIcon} onClick={onPrePlay} />
           <IconImg
-            src={
-              playState === "playing" || playState === "loaded"
-                ? pauseIcon
-                : playIcon
-            }
+            src={playState === "playing" ? pauseIcon : playIcon}
             large
             onClick={handlePlayIconClick}
           />
@@ -103,7 +98,7 @@ const PlayModal: FC<{
   onModalOpen,
   onNextOrPrePlay,
 }) => {
-  const dispatch = useDispatch();
+  const setShowPlayModal = useRootStore((state) => state.setShowPlayModal);
   const nav = useNavigate();
   const progressBarRef = useRef<HTMLDivElement | null>(null);
   const isProgressBarActived = useRef(false);
@@ -210,12 +205,12 @@ const PlayModal: FC<{
         className=" w-8 h-8 opacity-60 block "
         onClick={(e) => {
           e.stopPropagation();
-          dispatch(rootSlice.actions.setShowPlayModal(false));
+          setShowPlayModal(false);
         }}
       />
       <div className="relative w-[65%] pb-[65%] rounded-md overflow-hidden mx-auto mt-[20%]">
         <MyImage
-          url={songDetail?.imgUrl ?? ""}
+          url={songDetail?.imgUrl ? `${songDetail?.imgUrl}?param=300y300` : ""}
           className="absolute w-full h-full"
         />
       </div>
@@ -227,7 +222,7 @@ const PlayModal: FC<{
         <div
           className=" text-dg font-medium text-base mt-3"
           onClick={() => {
-            dispatch(rootSlice.actions.setShowPlayModal(false));
+            setShowPlayModal(false);
             setTimeout(() => {
               nav(`/artist/${songDetail?.artistId}`);
             }, 400);

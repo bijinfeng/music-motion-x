@@ -1,7 +1,6 @@
 import { MouseEventHandler, useCallback, memo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
-import { useDispatch } from "react-redux";
 import InnerModal, { ModalMask } from "@/components/InnerModal";
 import useEffectShowModal from "@/hooks/useEffectShowModal";
 import fetcher from "@/fetcher";
@@ -11,7 +10,7 @@ import attention from "@/assets/attention.png";
 import artist from "@/assets/artist.png";
 import album from "@/assets/album.png";
 import useIsomorphicEffect from "@/hooks/useIsomorphicEffect";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 
 const SongMore = memo(
   ({
@@ -31,7 +30,7 @@ const SongMore = memo(
     songId: number;
     imgUrl: string;
   }) => {
-    const dispatch = useDispatch();
+    const { playAtNext, setShowPlayModal } = useRootStore();
     const ele = useRef<HTMLDivElement | null>(null);
     const [fetch, setFetch] = useState(false);
     const {
@@ -139,17 +138,15 @@ const SongMore = memo(
                     className="next_song text-fg pl-11 mr-0 mb-0 ml-1 text-sm h-[30px] leading-[30px] mt-10"
                     onClick={() => {
                       if (isValid) {
-                        dispatch(
-                          rootSlice.actions.playAtNext({
-                            title: songName,
-                            artistName,
-                            albumName,
-                            id: songId,
-                            artistId,
-                            albumId,
-                            imgUrl,
-                          } as Song)
-                        );
+                        playAtNext({
+                          title: songName,
+                          artistName,
+                          albumName,
+                          id: songId,
+                          artistId,
+                          albumId,
+                          imgUrl,
+                        } as Song);
                       }
                     }}
                     style={{
@@ -173,7 +170,7 @@ const SongMore = memo(
                       backgroundImage: `url(${artist})`,
                     }}
                     onClick={(e) => {
-                      dispatch(rootSlice.actions.setShowPlayModal(false));
+                      setShowPlayModal(false);
                       handleModalClose(e);
                       setTimeout(() => {
                         nav(`/artist/${artistId}`);
@@ -192,7 +189,7 @@ const SongMore = memo(
                       backgroundImage: `url(${album})`,
                     }}
                     onClick={(e) => {
-                      dispatch(rootSlice.actions.setShowPlayModal(false));
+                      setShowPlayModal(false);
                       handleModalClose(e);
                       setTimeout(() => {
                         nav(`/album/${albumId}`);

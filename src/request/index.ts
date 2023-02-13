@@ -5,8 +5,8 @@ export const getSongDetail = async (ids: string | number) => {
   const res = await fetcher.get<{ songs: any[] }>(
     `/api/song/detail?ids=${ids}`
   );
-  const songs = res.data.songs;
-  return songs.map((song) => {
+
+  return res.data.songs.map((song) => {
     const names = song.ar.length
       ? [...song.ar].reverse().reduce((ac, a) => `${a.name} ${ac}`, "")
       : "";

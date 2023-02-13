@@ -1,14 +1,13 @@
 import { useQuery } from "react-query";
 
 import { memo, useMemo } from "react";
-import { useDispatch } from "react-redux";
 import css from "./PersonalizedSongs.module.css";
 import { MyImage } from "@/components/Image";
-import { rootSlice } from "@/store";
+import { useRootStore } from "@/store";
 import { personalizedSongsFetch } from "@/pages/Discover/fetches";
 
 const PersonalizedSongs = memo(() => {
-  const dispatch = useDispatch();
+  const playSongs = useRootStore((state) => state.playSongs);
   const { data } = useQuery(
     "/api/personalized/newsong",
     personalizedSongsFetch
@@ -46,9 +45,7 @@ const PersonalizedSongs = memo(() => {
       <div
         className={`${css.right_play_bar} bg-secondary`}
         onClick={() => {
-          dispatch(
-            rootSlice.actions.playSongs(data?.map?.((ret) => ret.song) ?? [])
-          );
+          playSongs(data?.map?.((ret) => ret.song) ?? []);
         }}
       />
     </div>
