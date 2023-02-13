@@ -1,0 +1,1 @@
+import{r as s,g as r,j as i,P as n,k as o}from"./index-fb9d91aa.js";const p=s.memo(()=>{const{data:t}=r("/api/personalized/privatecontent",()=>o.get("/api/personalized/privatecontent").then(a=>a.data.result.map(e=>({imgUrl:e.picUrl,title:e.name,id:e.id,type:"privateMV"}))));return i(n,{list:t?.slice?.(0,5),placeHolderCount:5})});p.displayName="NewSongs";export{p as default};
