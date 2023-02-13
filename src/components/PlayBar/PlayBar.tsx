@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import cx from "classnames";
-import {
+import React, {
   lazy,
   Suspense,
   useCallback,
@@ -19,6 +19,7 @@ import fetcher from "@/fetcher";
 import useIsomorphicEffect from "@/hooks/useIsomorphicEffect";
 import { RootState, rootSlice } from "@/store";
 import Dialog from "@/components/Dialog";
+import { getSongDetail } from "@/request";
 
 import type Song from "@/interfaces/song";
 
@@ -34,7 +35,7 @@ export type PlayState =
   | "playing"
   | "";
 
-const PlayBar = () => {
+const PlayBar: React.FC<{ id?: string }> = ({ id }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playState, setPlayState] = useState<PlayState>("");
   const [isShowDialog, setShowDialog] = useState(false);
@@ -45,10 +46,10 @@ const PlayBar = () => {
   const location = useLocation();
 
   const isShowPlayModal = useSelector<RootState>(
-    (state) => state.root.isShowPlayModal
+    (state) => !!id || state.root.isShowPlayModal
   );
-  const currentPlayId = useSelector<RootState>(
-    (state) => state.root.currentPlaySong.id
+  const currentPlayId = useSelector<RootState, number | string>(
+    (state) => id || state.root.currentPlaySong.id
   );
   const currentPlayList = useSelector<RootState>(
     (state) => state.root.currentPlaySongList
@@ -68,34 +69,7 @@ const PlayBar = () => {
 
   const { data: songDetail } = useQuery(
     currentPlayId ? `/api/song/detail?ids=${currentPlayId}` : "",
-    () =>
-      currentPlayId
-        ? fetcher
-            .get<{ songs: any[] }>(`/api/song/detail?ids=${currentPlayId}`)
-            .then((res) => res.data.songs)
-            .then((songs) => {
-              return songs.map((song) => {
-                const names = song.ar.length
-                  ? [...song.ar]
-                      .reverse()
-                      .reduce((ac, a) => `${a.name} ${ac}`, "")
-                  : "";
-                return {
-                  imgUrl: song.al.picUrl
-                    ? song.al.picUrl.replace(/https?/, "https")
-                    : "",
-                  title: `${song.name}`,
-                  desc: names,
-                  artistId: song.ar[0].id,
-                  albumId: song.al.id,
-                  artistName: names,
-                  albumName: song.al.name,
-                  type: "song",
-                  id: song.id,
-                };
-              })[0] as Song;
-            })
-        : null,
+    () => (currentPlayId ? getSongDetail(currentPlayId) : null),
     { suspense: false, refetchOnWindowFocus: false }
   );
 
@@ -192,6 +166,7 @@ const PlayBar = () => {
   }, [onNextOrPrePlay, songDetail]);
 
   if (!showPlayBar) return <></>;
+
   return (
     <>
       {isShowDialog && (

@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { HelmetProvider } from "react-helmet-async";
 import { Routes, Route } from "react-router";
-import { BrowserRouter } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Provider } from "react-redux";
 import {
   QueryClient,
@@ -39,6 +39,8 @@ interface AppProps {
 const App: React.FC<AppProps> = (props) => {
   const { store, preloadedState, dehydratedState, helmetContext } = props;
   const { reset } = useQueryErrorResetBoundary();
+  const [searchParams] = useSearchParams();
+  const songId = searchParams.get("id") || "";
 
   return (
     <ErrorBoundary
@@ -52,37 +54,35 @@ const App: React.FC<AppProps> = (props) => {
       <Provider store={store} serverState={preloadedState || {}}>
         <QueryClientProvider client={queryClient}>
           <Hydrate state={dehydratedState}>
-            <BrowserRouter basename={import.meta.env.BASE_URL}>
-              <HelmetProvider context={helmetContext}>
-                <Suspense>
-                  <PlayBar />
-                </Suspense>
+            <HelmetProvider context={helmetContext}>
+              <Suspense>
+                <PlayBar id={songId} />
+              </Suspense>
 
-                <Routes>
-                  {routes.map((r) => (
-                    <Route element={r.element} path={r.path} key={r.path}>
-                      {r.children &&
-                        r.children.length > 0 &&
-                        r.children.map((child) => (
-                          <Route
-                            element={child.element}
-                            path={child.path}
-                            key={child.path}
-                          />
-                        ))}
-                    </Route>
-                  ))}
-                  <Route
-                    path="*"
-                    element={
-                      <Suspense>
-                        <NotFound />
-                      </Suspense>
-                    }
-                  />
-                </Routes>
-              </HelmetProvider>
-            </BrowserRouter>
+              <Routes>
+                {routes.map((r) => (
+                  <Route element={r.element} path={r.path} key={r.path}>
+                    {r.children &&
+                      r.children.length > 0 &&
+                      r.children.map((child) => (
+                        <Route
+                          element={child.element}
+                          path={child.path}
+                          key={child.path}
+                        />
+                      ))}
+                  </Route>
+                ))}
+                <Route
+                  path="*"
+                  element={
+                    <Suspense>
+                      <NotFound />
+                    </Suspense>
+                  }
+                />
+              </Routes>
+            </HelmetProvider>
           </Hydrate>
         </QueryClientProvider>
       </Provider>
