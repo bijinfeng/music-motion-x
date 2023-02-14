@@ -1,1 +1,0 @@
-import{r as s,e as r,j as i,P as n,i as o}from"./index-db6e8751.js";const p=s.memo(()=>{const{data:t}=r("/api/personalized/privatecontent",()=>o.get("/api/personalized/privatecontent").then(a=>a.data.result.map(e=>({imgUrl:e.picUrl,title:e.name,id:e.id,type:"privateMV"}))));return i(n,{list:t?.slice?.(0,5),placeHolderCount:5})});p.displayName="NewSongs";export{p as default};
