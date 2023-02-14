@@ -12,6 +12,7 @@ import {
 } from "react";
 import { MyImage } from "../Image";
 import type { PlayState } from "./PlayBar";
+import PlayLyric from "./PlayLyric";
 import downIcon from "@/assets/down.png";
 import formatAudioTime from "@/utils/formatAudioTime";
 import { useRootStore } from "@/store";
@@ -57,23 +58,22 @@ const PlayPageBottomPart: FC<{
     const nextSong = useCallback(() => {
       onNextOrPrePlay(true, "next");
     }, [onNextOrPrePlay]);
+
     return (
-      <div className=" absolute py-0 px-2 bottom-10 left-0 my-4 w-full ">
-        <div className=" w-full h-full flex justify-between items-center px-16 relative">
-          <IconImg src={preIcon} onClick={onPrePlay} />
-          <IconImg
-            src={playState === "playing" ? pauseIcon : playIcon}
-            large
-            onClick={handlePlayIconClick}
-          />
-          <IconImg src={nextIcon} onClick={nextSong} />
-          <IconImg
-            src={listIcon}
-            onClick={onModalOpen}
-            small
-            style={{ right: 20, position: "absolute" }}
-          />
-        </div>
+      <div className="flex justify-between items-center px-16 relative">
+        <IconImg src={preIcon} onClick={onPrePlay} />
+        <IconImg
+          src={playState === "playing" ? pauseIcon : playIcon}
+          large
+          onClick={handlePlayIconClick}
+        />
+        <IconImg src={nextIcon} onClick={nextSong} />
+        <IconImg
+          src={listIcon}
+          onClick={onModalOpen}
+          small
+          style={{ right: 20, position: "absolute" }}
+        />
       </div>
     );
   }
@@ -214,13 +214,10 @@ const PlayModal: FC<{
           className="absolute w-full h-full"
         />
       </div>
-      <div className=" px-6">
-        <div className=" text-fg font-medium text-2xl mt-8">
-          {songDetail?.title}
-        </div>
-
+      <div className="px-6 mt-6">
+        <div className="text-fg font-medium text-xl">{songDetail?.title}</div>
         <div
-          className=" text-dg font-medium text-base mt-3"
+          className=" text-dg font-medium text-base my-3"
           onClick={() => {
             setShowPlayModal(false);
             setTimeout(() => {
@@ -230,48 +227,51 @@ const PlayModal: FC<{
         >
           {songDetail?.artistName}
         </div>
+        <PlayLyric />
       </div>
-      <div className=" absolute left-1/2 -translate-x-1/2 bottom-40 w-[85%] h-1">
-        <div
-          style={{
-            backgroundImage: `linear-gradient(
+
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-10 w-[85%]">
+        <div className="h-1 pb-10">
+          <div
+            style={{
+              backgroundImage: `linear-gradient(
         90deg, rgb(254, 221, 39) 0, rgb(254, 221, 39) ${
           getProgress() * 100
         }%, rgb(245,245,245) ${getProgress() * 100}%
       )`,
-          }}
-          className="h-1 relative w-full rounded-[200px] text-fg"
-          onClick={onProgressBarClick}
-          onMouseUp={onProgressBarMouseEnd}
-          onMouseLeave={onProgressBarMouseEnd}
-          onMouseMove={onProgressBarMouseMove}
-          ref={progressBarRef}
-        >
-          <div
-            className=" absolute w-2 h-2 rounded-[50%] bg-secondary will-change-auto top-1/2 -translate-y-1/2 after:absolute after:-top-[10px] after:-left-[10px] after:w-7 after:h-7"
-            style={{
-              left: `${getProgress() * 100}%`,
             }}
-            onMouseDown={onMouseDown}
-            onTouchStart={onTouchStart}
-            onTouchEnd={onTouchEnd}
-            onTouchMove={onTouchMove}
-          />
+            className="h-1 relative w-full rounded-[200px] text-fg"
+            onClick={onProgressBarClick}
+            onMouseUp={onProgressBarMouseEnd}
+            onMouseLeave={onProgressBarMouseEnd}
+            onMouseMove={onProgressBarMouseMove}
+            ref={progressBarRef}
+          >
+            <div
+              className=" absolute w-2 h-2 rounded-[50%] bg-secondary will-change-auto top-1/2 -translate-y-1/2 after:absolute after:-top-[10px] after:-left-[10px] after:w-7 after:h-7"
+              style={{
+                left: `${getProgress() * 100}%`,
+              }}
+              onMouseDown={onMouseDown}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+              onTouchMove={onTouchMove}
+            />
+          </div>
+          <div className=" absolute text-dg opacity-80 text-sm top-3 left-0">
+            {formatAudioTime(audioCurTime)}
+          </div>
+          <div className=" absolute text-dg opacity-80 text-sm top-3 right-0">
+            {formatAudioTime(audioRef.current!.duration ?? 0)}
+          </div>
         </div>
-        <div className=" absolute text-dg opacity-80 text-sm top-3 left-0">
-          {formatAudioTime(audioCurTime)}
-        </div>
-        <div className=" absolute text-dg opacity-80 text-sm top-3 right-0">
-          {formatAudioTime(audioRef.current!.duration ?? 0)}
-        </div>
+        <PlayPageBottomPart
+          playState={playState}
+          handlePlayIconClick={handlePlayIconClick}
+          onModalOpen={onModalOpen}
+          onNextOrPrePlay={onNextOrPrePlay}
+        />
       </div>
-
-      <PlayPageBottomPart
-        playState={playState}
-        handlePlayIconClick={handlePlayIconClick}
-        onModalOpen={onModalOpen}
-        onNextOrPrePlay={onNextOrPrePlay}
-      />
     </>
   );
 };

@@ -13,11 +13,12 @@ import InnerModal, { ModalMask } from "../InnerModal";
 import { SongList } from "../MediaItemList";
 import css from "./PlayBar.module.css";
 import PlayFixedBar from "./PlayFixedBar";
+import { useLyricStateStore } from "./PlayLyric";
 import fetcher from "@/fetcher";
 import useIsomorphicEffect from "@/hooks/useIsomorphicEffect";
 import { useRootStore } from "@/store";
 import Dialog from "@/components/Dialog";
-import { getSongDetail } from "@/request";
+import { getSongDetail, getSongLyric } from "@/request";
 
 import type Song from "@/interfaces/song";
 
@@ -38,6 +39,7 @@ const PlayBar: React.FC = () => {
   const [playState, setPlayState] = useState<PlayState>("");
   const [isShowDialog, setShowDialog] = useState(false);
   const barRef = useRef<HTMLDivElement | null>(null);
+  const { lrc, play, pause } = useLyricStateStore();
 
   const [audioCurTime, setAudioCurTime] = useState(0);
   const {
@@ -66,10 +68,24 @@ const PlayBar: React.FC = () => {
     { suspense: false, refetchOnWindowFocus: false, enabled: !!currentPlayId }
   );
 
+  useQuery(
+    ["song", "lyric", currentPlayId],
+    () =>
+      getSongLyric(currentPlayId!).then((data) => {
+        const lyricString = data.lrc.lyric;
+        const extendedLyrics = data.tlyric.lyric ? [data.tlyric.lyric] : [];
+        lrc.setLyric(lyricString, extendedLyrics);
+        return data;
+      }),
+    { suspense: false, refetchOnWindowFocus: false, enabled: !!currentPlayId }
+  );
+
   const onAudioTimeUpdate = useCallback(() => {
-    if (audioRef.current)
+    if (audioRef.current) {
       setAudioCurTime(audioRef.current.duration - audioRef.current.currentTime);
-  }, []);
+      play(audioRef.current.currentTime * 1000);
+    }
+  }, [play]);
 
   const onAudioLoadedData = useCallback(() => {
     setAudioCurTime(audioRef.current!.duration);
@@ -82,7 +98,8 @@ const PlayBar: React.FC = () => {
 
   const onAudioPause = useCallback(() => {
     setPlayState("paused");
-  }, []);
+    pause();
+  }, [pause]);
 
   const handlePlayIconClick = useCallback(() => {
     if (playState === "playing") {
@@ -129,9 +146,12 @@ const PlayBar: React.FC = () => {
       audioRef.current.src = src.url?.replace?.(/https?/, "https");
       audioRef.current.currentTime = 0;
       if (autoplay) {
-        audioRef.current.play().catch(() => {
-          setShowDialog(true);
-        });
+        audioRef.current
+          .play()
+          .then(onAudioPlay)
+          .catch(() => {
+            setShowDialog(true);
+          });
       }
     } else if (src && !src?.url && currentPlayId) {
       setShowDialog(true);

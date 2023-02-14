@@ -1,6 +1,12 @@
 import fetcher from "@/fetcher";
 import type Song from "@/interfaces/song";
+import type { LyricMap } from "@/interfaces/song";
 
+/**
+ * 获取歌曲详情
+ * @param ids
+ * @returns
+ */
 export const getSongDetail = async (ids: string | number) => {
   const res = await fetcher.get<{ songs: any[] }>(
     `/api/song/detail?ids=${ids}`
@@ -22,4 +28,13 @@ export const getSongDetail = async (ids: string | number) => {
       id: song.id,
     };
   })[0] as Song;
+};
+
+/**
+ * 获取歌曲歌词
+ * @param id
+ */
+export const getSongLyric = async (id: number) => {
+  const res = await fetcher.get<LyricMap>(`/api/lyric/new?id=${id}`);
+  return res.data;
 };

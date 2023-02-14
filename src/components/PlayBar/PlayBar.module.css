@@ -39,3 +39,9 @@
   width: 100%;
   left: 0;
 }
+
+.lyric {
+  line-height: 20px;
+  height: 60px;
+  overflow: hidden;
+}

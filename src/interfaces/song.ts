@@ -16,3 +16,14 @@ export default interface Song {
   type: "song";
   id: number;
 }
+
+export interface Lyric {
+  version: number;
+  lyric: string;
+}
+
+export interface LyricMap {
+  lrc: Lyric; // 歌曲歌词
+  klyric: Lyric; // 逐字歌词
+  tlyric: Lyric; // 翻译歌词
+}
